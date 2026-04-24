@@ -1,0 +1,6 @@
+@TriadInterviewBackend_HostAddress = http://localhost:5236
+
+GET {{TriadInterviewBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
