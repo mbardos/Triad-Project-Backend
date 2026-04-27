@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TriadInterviewBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c7a621ba02b4333f7343e189f4dae449abde9dea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7a09090fb4de64a4bf3e5380e687d6da4dfd8b61")]
 [assembly: System.Reflection.AssemblyProductAttribute("TriadInterviewBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TriadInterviewBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
