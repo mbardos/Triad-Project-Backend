@@ -1,32 +1,37 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class DeleteUserCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Users
 {
-    public int UserId { get; set; }
-
-    public DeleteUserCommand(int userId)
+    public class DeleteUserCommand : IRequest<bool>
     {
-        UserId = userId;
-    }
+        public int UserId { get; set; }
 
-    public class Handler : IRequestHandler<DeleteUserCommand, bool>
-    {
-        private readonly IUserRepository _userRepository;
-    
-        public Handler(IUserRepository userRepository)
+        public DeleteUserCommand(int userId)
         {
-            _userRepository = userRepository;
+            UserId = userId;
         }
-    
-        public async Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+
+        public class Handler : IRequestHandler<DeleteUserCommand, bool>
         {
-            var existingUser = await _userRepository.GetUserByIdAsync(request.UserId);
-            if (existingUser == null)
+            private readonly IUserRepository _userRepository;
+        
+            public Handler(IUserRepository userRepository)
             {
-                return false; // User not found
+                _userRepository = userRepository;
             }
-    
-            return await _userRepository.DeleteUserAsync(request.UserId);
+        
+            public async Task<bool> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
+            {
+                var existingUser = await _userRepository.GetUserByIdAsync(request.UserId);
+                if (existingUser == null)
+                {
+                    return false; // User not found
+                }
+        
+                return await _userRepository.DeleteUserAsync(request.UserId);
+            }
         }
     }
-}   
+}
+   

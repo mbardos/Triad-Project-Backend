@@ -1,38 +1,43 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class GetAllTasksQuery : IRequest<IEnumerable<TaskDto>>
+namespace TriadInterviewBackend.ApplicationLayer.Tasks
 {
-    public class Handler : IRequestHandler<GetAllTasksQuery, IEnumerable<TaskDto>>
+    public class GetAllTasksQuery : IRequest<IEnumerable<TaskDto>>
     {
-        private readonly ITaskRepository _taskRepository;
-
-        public Handler(ITaskRepository taskRepository)
+        public class Handler : IRequestHandler<GetAllTasksQuery, IEnumerable<TaskDto>>
         {
-            _taskRepository = taskRepository;
-        }
+            private readonly ITaskRepository _taskRepository;
 
-        public async Task<IEnumerable<TaskDto>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
-        {
-            var tasks = await _taskRepository.GetAllTasksAsync();
-
-            var taskList = new List<TaskDto>();
-
-            foreach (var task in tasks)
+            public Handler(ITaskRepository taskRepository)
             {
-                var taskDto = new TaskDto
-                {
-                    Id = task.Id,
-                    Name = task.Name,
-                    Description = task.Description,
-                    ProjectId = task.ProjectId,
-                    State = task.State,
-                    CreatedUserId = task.CreatedUserId,
-                    EditedUserId = task.EditedUserId
-                };
-                taskList.Add(taskDto);
+                _taskRepository = taskRepository;
             }
 
-            return taskList;
+            public async Task<IEnumerable<TaskDto>> Handle(GetAllTasksQuery request, CancellationToken cancellationToken)
+            {
+                var tasks = await _taskRepository.GetAllTasksAsync();
+
+                var taskList = new List<TaskDto>();
+
+                foreach (var task in tasks)
+                {
+                    var taskDto = new TaskDto
+                    {
+                        Id = task.Id,
+                        Name = task.Name,
+                        Description = task.Description,
+                        ProjectId = task.ProjectId,
+                        State = task.State,
+                        CreatedUserName = task.CreatedUserName,
+                        EditedUserName = task.EditedUserName
+                    };
+                    taskList.Add(taskDto);
+                }
+
+                return taskList;
+            }
         }
     }
 }

@@ -1,39 +1,44 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class GetProjectByNameQuery : IRequest<ProjectDto>
+namespace TriadInterviewBackend.ApplicationLayer.Projects
 {
-    public string ProjectName { get; set; }
-
-    public GetProjectByNameQuery(string projectName)
+    public class GetProjectByNameQuery : IRequest<ProjectDto>
     {
-        ProjectName = projectName;
-    }
+        public string ProjectName { get; set; }
 
-    public class Handler : IRequestHandler<GetProjectByNameQuery, ProjectDto>
-    {
-        private readonly IProjectRepository _projectRepository;
-
-        public Handler(IProjectRepository projectRepository)
+        public GetProjectByNameQuery(string projectName)
         {
-            _projectRepository = projectRepository;
+            ProjectName = projectName;
         }
 
-        public async Task<ProjectDto> Handle(GetProjectByNameQuery request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<GetProjectByNameQuery, ProjectDto>
         {
-            var project = await _projectRepository.GetProjectByNameAsync(request.ProjectName);
-            if (project == null)
+            private readonly IProjectRepository _projectRepository;
+
+            public Handler(IProjectRepository projectRepository)
             {
-                return null;
+                _projectRepository = projectRepository;
             }
 
-            return new ProjectDto
+            public async Task<ProjectDto> Handle(GetProjectByNameQuery request, CancellationToken cancellationToken)
             {
-                Id = project.Id,
-                Name = project.Name,
-                Description = project.Description,
-                CreatedUserId = project.CreatedUserId,
-                EditedUserId = project.EditedUserId
-            };
+                var project = await _projectRepository.GetProjectByNameAsync(request.ProjectName);
+                if (project == null)
+                {
+                    return null;
+                }
+
+                return new ProjectDto
+                {
+                    Id = project.Id,
+                    Name = project.Name,
+                    Description = project.Description,
+                    CreatedUserName = project.CreatedUserName,
+                    EditedUserName = project.EditedUserName
+                };
+            }
         }
     }
 }

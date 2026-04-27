@@ -1,37 +1,42 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class GetUserByIdQuery : IRequest<UserDto>
+namespace TriadInterviewBackend.ApplicationLayer.Users
 {
-    public int UserId { get; set; }
-
-    public GetUserByIdQuery(int userId)
+    public class GetUserByIdQuery : IRequest<UserDto>
     {
-        UserId = userId;
-    }
-    public class Handler : IRequestHandler<GetUserByIdQuery, UserDto>
-    {
-        private readonly IUserRepository _userRepository;
+        public int UserId { get; set; }
 
-        public Handler(IUserRepository userRepository)
+        public GetUserByIdQuery(int userId)
         {
-            _userRepository = userRepository;
+            UserId = userId;
         }
-
-        public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<GetUserByIdQuery, UserDto>
         {
-            var user = await _userRepository.GetUserByIdAsync(request.UserId);
-            if (user == null)
+            private readonly IUserRepository _userRepository;
+
+            public Handler(IUserRepository userRepository)
             {
-                return null;
+                _userRepository = userRepository;
             }
 
-            return new UserDto
+            public async Task<UserDto> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
             {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Password = user.Password
-            };
+                var user = await _userRepository.GetUserByIdAsync(request.UserId);
+                if (user == null)
+                {
+                    return null;
+                }
+
+                return new UserDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Password = user.Password
+                };
+            }
         }
     }
 }

@@ -1,41 +1,47 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Aggregates;
+using TriadInterviewBackend.DomainLayer.Contracts;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
 
-public class AddProjectCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Projects
 {
-
-    public ProjectDto Project { get; set; }
-
-    public AddProjectCommand(ProjectDto project)
+    public class AddProjectCommand : IRequest<bool>
     {
-        Project = project;
-    }
 
-    public class Handler : IRequestHandler<AddProjectCommand, bool>
-    {
-        private readonly IProjectRepository _projectRepository;
+        public ProjectDto Project { get; set; }
 
-        public Handler(IProjectRepository projectRepository)
+        public AddProjectCommand(ProjectDto project)
         {
-            _projectRepository = projectRepository;
+            Project = project;
         }
 
-        public async Task<bool> Handle(AddProjectCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<AddProjectCommand, bool>
         {
-            var projectDto = request.Project;
-            if (await _projectRepository.GetProjectByNameAsync(projectDto.Name) != null)
+            private readonly IProjectRepository _projectRepository;
+
+            public Handler(IProjectRepository projectRepository)
             {
-                return false; // Project with the same name already exists  
+                _projectRepository = projectRepository;
             }
 
-            var project = new Project
+            public async Task<bool> Handle(AddProjectCommand request, CancellationToken cancellationToken)
             {
-                Name = projectDto.Name,
-                Description = projectDto.Description,
-                CreatedUserId = projectDto.CreatedUserId,
-                EditedUserId = projectDto.EditedUserId
-            };
+                var projectDto = request.Project;
+                if (await _projectRepository.GetProjectByNameAsync(projectDto.Name) != null)
+                {
+                    return false; // Project with the same name already exists  
+                }
 
-            return await _projectRepository.AddProjectAsync(project);
+                var project = new Project
+                {
+                    Name = projectDto.Name,
+                    Description = projectDto.Description,
+                    CreatedUserName = projectDto.CreatedUserName,
+                    EditedUserName = projectDto.EditedUserName
+                };
+
+                return await _projectRepository.AddProjectAsync(project);
+            }
         }
     }
 }

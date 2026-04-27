@@ -1,49 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.Projects;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using TriadInterviewBackend.DataLayer.Entities;
+using Microsoft.AspNetCore.Authorization;
 
-[Route("api/[controller]")]
-[ApiController]
-public class ProjectController: ControllerBase
+namespace TriadInterviewBackend.API_Layer.Controllers
 {
-    private readonly IMediator _mediator;
-
-    public ProjectController(IMediator mediator)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ProjectController: ControllerBase
     {
-        _mediator = mediator;
-    }
+        private readonly IMediator _mediator; 
+        private readonly UserManager<IdentityUserEntity> _userManager;
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetProject(int id)
-    {
-        var project = await _mediator.Send(new GetProjectByIdQuery(id));
-        return project != null ? Ok(project) : NotFound();
-    }
+        public ProjectController(IMediator mediator, UserManager<IdentityUserEntity> userManager)
+        {
+            _mediator = mediator;
+            _userManager = userManager;
+        }
 
-    [HttpGet("projects")]
-    public async Task<IActionResult> ListProjects()
-    {
-        var projects = await _mediator.Send(new GetAllProjectsQuery());
-        return Ok(projects);
-    }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProject(int id)
+        {
+            var project = await _mediator.Send(new GetProjectByIdQuery(id));
+            return project != null ? Ok(project) : NotFound();
+        }
 
-    [HttpPost("create")]
-    public async Task<IActionResult> AddProject([FromBody] ProjectDto project)
-    {
-        var result = await _mediator.Send(new AddProjectCommand(project));
-        return result ? Ok() : BadRequest();
-    }
+        [HttpGet("projects")]
+        public async Task<IActionResult> ListProjects()
+        {
+            var projects = await _mediator.Send(new GetAllProjectsQuery());
+            return Ok(projects);
+        }
 
-    [HttpPut("edit")]
-    public async Task<IActionResult> UpdateProject([FromBody] ProjectDto project)
-    {
-        var result = await _mediator.Send(new UpdateProjectCommand(project));
-        return result ? Ok() : BadRequest();
-    }
+        [HttpPost("create")]
+        public async Task<IActionResult> AddProject([FromBody] ProjectDto project)
+        {
+            var result = await _mediator.Send(new AddProjectCommand(project));
+            return result ? Ok() : BadRequest();
+        }
 
-    [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> DeleteProject(int id)
-    {
-        var result = await _mediator.Send(new DeleteProjectCommand(id));
-        return result ? Ok() : NotFound();
+        [HttpPut("edit")]
+        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto project)
+        {
+            var result = await _mediator.Send(new UpdateProjectCommand(project));
+            return result ? Ok() : BadRequest();
+        }
+
+        [HttpDelete("delete/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProject(int id)
+        {
+            var result = await _mediator.Send(new DeleteProjectCommand(id));
+            return result ? Ok() : NotFound();
+        }
     }
 }

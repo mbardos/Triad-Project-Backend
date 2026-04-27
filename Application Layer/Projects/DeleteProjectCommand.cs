@@ -1,41 +1,46 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Contracts;
+using TriadInterviewBackend.ApplicationLayer.Tasks;
 
-public class DeleteProjectCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Projects
 {
-    public int ProjectId { get; set; }
-
-    public DeleteProjectCommand(int projectId)
+    public class DeleteProjectCommand : IRequest<bool>
     {
-        ProjectId = projectId;
-    }
+        public int ProjectId { get; set; }
 
-    public class Handler : IRequestHandler<DeleteProjectCommand, bool>
-    {
-        private readonly IProjectRepository _projectRepository;
-        private readonly IMediator _mediator;
-    
-        public Handler(IProjectRepository projectRepository, IMediator mediator)
+        public DeleteProjectCommand(int projectId)
         {
-            _projectRepository = projectRepository;
-            _mediator = mediator;
+            ProjectId = projectId;
         }
-    
-        public async Task<bool> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
+
+        public class Handler : IRequestHandler<DeleteProjectCommand, bool>
         {
-            var existingProject = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-            if (existingProject == null)
+            private readonly IProjectRepository _projectRepository;
+            private readonly IMediator _mediator;
+        
+            public Handler(IProjectRepository projectRepository, IMediator mediator)
             {
-                return false; // Project not found
+                _projectRepository = projectRepository;
+                _mediator = mediator;
             }
-
-            var updateTasksResult = await _mediator.Send(new UpdateTaskRemoveProjectIdCommand(request.ProjectId));
-
-            if (!updateTasksResult)
+        
+            public async Task<bool> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
             {
-                return false; // Failed to update tasks
+                var existingProject = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+                if (existingProject == null)
+                {
+                    return false; // Project not found
+                }
+
+                var updateTasksResult = await _mediator.Send(new UpdateTaskRemoveProjectIdCommand(request.ProjectId));
+
+                if (!updateTasksResult)
+                {
+                    return false; // Failed to update tasks
+                }
+
+                return await _projectRepository.DeleteProjectAsync(request.ProjectId);
             }
-            
-            return await _projectRepository.DeleteProjectAsync(request.ProjectId);
         }
     }
 }

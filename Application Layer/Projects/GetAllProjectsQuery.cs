@@ -1,36 +1,41 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class GetAllProjectsQuery : IRequest<IEnumerable<ProjectDto>>
+namespace TriadInterviewBackend.ApplicationLayer.Projects
 {
-    public class Handler : IRequestHandler<GetAllProjectsQuery, IEnumerable<ProjectDto>>
+    public class GetAllProjectsQuery : IRequest<IEnumerable<ProjectDto>>
     {
-        private readonly IProjectRepository _projectRepository;
-
-        public Handler(IProjectRepository projectRepository)
+        public class Handler : IRequestHandler<GetAllProjectsQuery, IEnumerable<ProjectDto>>
         {
-            _projectRepository = projectRepository;
-        }
+            private readonly IProjectRepository _projectRepository;
 
-        public async Task<IEnumerable<ProjectDto>> Handle(GetAllProjectsQuery request, CancellationToken cancellationToken)
-        {
-            var projects = await _projectRepository.GetAllProjectsAsync();
-
-            var projectList = new List<ProjectDto>();  
-
-            foreach (var project in projects)
+            public Handler(IProjectRepository projectRepository)
             {
-                var projectDto = new ProjectDto
-                {
-                    Id = project.Id,
-                    Name = project.Name,
-                    Description = project.Description,
-                    CreatedUserId = project.CreatedUserId,
-                    EditedUserId = project.EditedUserId
-                };
-                projectList.Add(projectDto);
+                _projectRepository = projectRepository;
             }
 
-            return projectList;
+            public async Task<IEnumerable<ProjectDto>> Handle(GetAllProjectsQuery request, CancellationToken cancellationToken)
+            {
+                var projects = await _projectRepository.GetAllProjectsAsync();
+
+                var projectList = new List<ProjectDto>();  
+
+                foreach (var project in projects)
+                {
+                    var projectDto = new ProjectDto
+                    {
+                        Id = project.Id,
+                        Name = project.Name,
+                        Description = project.Description,
+                        CreatedUserName = project.CreatedUserName,
+                        EditedUserName = project.EditedUserName
+                    };
+                    projectList.Add(projectDto);
+                }
+
+                return projectList;
+            }
         }
     }
 }

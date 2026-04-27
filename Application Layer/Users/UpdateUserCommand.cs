@@ -1,37 +1,42 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class UpdateUserCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Users
 {
-    public UserDto User { get; set; }
-
-    public UpdateUserCommand(UserDto user)
+    public class UpdateUserCommand : IRequest<bool>
     {
-        User = user;
-    }
+        public UserDto User { get; set; }
 
-    public class Handler : IRequestHandler<UpdateUserCommand, bool>
-    {
-        private readonly IUserRepository _userRepository;
-
-        public Handler(IUserRepository userRepository)
+        public UpdateUserCommand(UserDto user)
         {
-            _userRepository = userRepository;
+            User = user;
         }
 
-        public async Task<bool> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<UpdateUserCommand, bool>
         {
-            var userDto = request.User;
-            var existingUser = await _userRepository.GetUserByIdAsync(userDto.Id);
-            if (existingUser == null)
+            private readonly IUserRepository _userRepository;
+
+            public Handler(IUserRepository userRepository)
             {
-                return false; // User not found
+                _userRepository = userRepository;
             }
 
-            existingUser.Name = userDto.Name;
-            existingUser.Email = userDto.Email;
-            existingUser.Password = userDto.Password;
+            public async Task<bool> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+            {
+                var userDto = request.User;
+                var existingUser = await _userRepository.GetUserByIdAsync(userDto.Id);
+                if (existingUser == null)
+                {
+                    return false; // User not found
+                }
 
-            return await _userRepository.UpdateUserAsync(existingUser);
+                existingUser.Name = userDto.Name;
+                existingUser.Email = userDto.Email;
+                existingUser.Password = userDto.Password;
+
+                return await _userRepository.UpdateUserAsync(existingUser);
+            }
         }
     }
 }

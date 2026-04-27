@@ -1,121 +1,128 @@
 using Microsoft.EntityFrameworkCore;
+using TriadInterviewBackend.DataLayer.Contexts;
+using TriadInterviewBackend.DataLayer.Entities;
+using TriadInterviewBackend.DomainLayer.Aggregates;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class ProjectRepository : IProjectRepository
+namespace TriadInterviewBackend.DataLayer.Repositories
 {
-    private readonly TriadDbContext _context;
-
-    public ProjectRepository(TriadDbContext context)
+    public class ProjectRepository : IProjectRepository
     {
-        _context = context;
-    }
+        private readonly TriadDbContext _context;
 
-    public async Task<Project> GetProjectByIdAsync(int id)
-    {
-        var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id);
-
-        if (project == null)
-            return null;
-            
-        return EntityToAggregate(project);
-    }
-
-    public async Task<Project> GetProjectByNameAsync(string name)
-    {
-        var project = await _context.Projects.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
-
-        if (project == null)
-            return null;
-            
-        return EntityToAggregate(project);
-    }
-
-    public async Task<IEnumerable<Project>> GetAllProjectsAsync()
-    {
-        var projects = await _context.Projects.ToListAsync();
-        var projectList = new List<Project>();
-
-        foreach (var proj in projects){
-            projectList.Add(EntityToAggregate(proj));
+        public ProjectRepository(TriadDbContext context)
+        {
+            _context = context;
         }
-        return projectList;
-    }
 
-    public async Task<bool> AddProjectAsync(Project projectToAdd)
-    {
-        var projectEntity = AggregateToEntity(projectToAdd);
-
-        try
+        public async Task<Project> GetProjectByIdAsync(int id)
         {
-            await _context.Projects.AddAsync(projectEntity);
-            await _context.SaveChangesAsync();
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (project == null)
+                return null;
+                
+            return EntityToAggregate(project);
         }
-        catch (Exception ex)
+
+        public async Task<Project> GetProjectByNameAsync(string name)
         {
-            // Log the exception (ex) here as needed
-            return false;       
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+
+            if (project == null)
+                return null;
+                
+            return EntityToAggregate(project);
         }
-        return true;
-    }
 
-    public async Task<bool> UpdateProjectAsync(Project projectToUpdate)
-    {
-        var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectToUpdate.Id);
-
-        project.Name = projectToUpdate.Name;
-        project.Description = projectToUpdate.Description;
-        project.CreatedByUserId = projectToUpdate.CreatedUserId;
-        project.EditByUserId = projectToUpdate.EditedUserId;
-
-        try
+        public async Task<IEnumerable<Project>> GetAllProjectsAsync()
         {
-            _context.Projects.Update(project);
-            await _context.SaveChangesAsync();
+            var projects = await _context.Projects.ToListAsync();
+            var projectList = new List<Project>();
+
+            foreach (var proj in projects){
+                projectList.Add(EntityToAggregate(proj));
+            }
+            return projectList;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error updating project: {ex.Message}");
-            return false;       
-        }
-        return true;
-    }
 
-    public async Task<bool> DeleteProjectAsync(int id)
-    {
-        var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id);
+        public async Task<bool> AddProjectAsync(Project projectToAdd)
+        {
+            var projectEntity = AggregateToEntity(projectToAdd);
 
-        try
-        {
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Projects.AddAsync(projectEntity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (ex) here as needed
+                return false;       
+            }
+            return true;
         }
-        catch (Exception ex)
-        {
-            // Log the exception (ex) here as needed
-            return false;       
-        }
-        return true;
-    }
-    private Project EntityToAggregate(ProjectEntity projectEntity)
-    {
-        return new Project
-        {
-            Id = projectEntity.Id,
-            Name = projectEntity.Name,
-            Description = projectEntity.Description,
-            CreatedUserId = projectEntity.CreatedByUserId,
-            EditedUserId = projectEntity.EditByUserId
-        };
-    }
 
-    private ProjectEntity AggregateToEntity(Project project)
-    {
-        return new ProjectEntity
+        public async Task<bool> UpdateProjectAsync(Project projectToUpdate)
         {
-            Id = project.Id,
-            Name = project.Name,
-            Description = project.Description,
-            CreatedByUserId = project.CreatedUserId,
-            EditByUserId = project.EditedUserId
-        };
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == projectToUpdate.Id);
+
+            project.Name = projectToUpdate.Name;
+            project.Description = projectToUpdate.Description;
+            project.CreatedByUserName = projectToUpdate.CreatedUserName;
+            project.EditByUserName = projectToUpdate.EditedUserName;
+
+            try
+            {
+                _context.Projects.Update(project);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating project: {ex.Message}");
+                return false;       
+            }
+            return true;
+        }
+
+        public async Task<bool> DeleteProjectAsync(int id)
+        {
+            var project = await _context.Projects.FirstOrDefaultAsync(x => x.Id == id);
+
+            try
+            {
+                _context.Projects.Remove(project);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (ex) here as needed
+                return false;       
+            }
+            return true;
+        }
+        private Project EntityToAggregate(ProjectEntity projectEntity)
+        {
+            return new Project
+            {
+                Id = projectEntity.Id,
+                Name = projectEntity.Name,
+                Description = projectEntity.Description,
+                CreatedUserName = projectEntity.CreatedByUserName,
+                EditedUserName = projectEntity.EditByUserName
+            };
+        }
+
+        private ProjectEntity AggregateToEntity(Project project)
+        {
+            return new ProjectEntity
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                CreatedByUserName = project.CreatedUserName,
+                EditByUserName = project.EditedUserName
+            };
+        }
     }
 }

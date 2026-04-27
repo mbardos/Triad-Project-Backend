@@ -1,45 +1,50 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class UpdateProjectCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Projects
 {
-    public ProjectDto Project { get; set; }
-
-    public UpdateProjectCommand(ProjectDto project)
+    public class UpdateProjectCommand : IRequest<bool>
     {
-        Project = project;
-    }
+        public ProjectDto Project { get; set; }
 
-    public class Handler : IRequestHandler<UpdateProjectCommand, bool>
-    {
-        private readonly IProjectRepository _projectRepository;
-
-        public Handler(IProjectRepository projectRepository)
+        public UpdateProjectCommand(ProjectDto project)
         {
-            _projectRepository = projectRepository;
+            Project = project;
         }
 
-        public async Task<bool> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<UpdateProjectCommand, bool>
         {
-            var projectDto = request.Project;
-            var existingProject = await _projectRepository.GetProjectByIdAsync(projectDto.Id);
-            if (existingProject == null)
+            private readonly IProjectRepository _projectRepository;
+
+            public Handler(IProjectRepository projectRepository)
             {
-                return false; // Project not found
+                _projectRepository = projectRepository;
             }
 
-            var projectWithSameName = await _projectRepository.GetProjectByNameAsync(projectDto.Name);
-
-            if (projectWithSameName != null && projectWithSameName.Id != projectDto.Id)
+            public async Task<bool> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
             {
-                return false; // Another project with the same name already exists
+                var projectDto = request.Project;
+                var existingProject = await _projectRepository.GetProjectByIdAsync(projectDto.Id);
+                if (existingProject == null)
+                {
+                    return false; // Project not found
+                }
+
+                var projectWithSameName = await _projectRepository.GetProjectByNameAsync(projectDto.Name);
+
+                if (projectWithSameName != null && projectWithSameName.Id != projectDto.Id)
+                {
+                    return false; // Another project with the same name already exists
+                }
+
+                existingProject.Name = projectDto.Name;
+                existingProject.Description = projectDto.Description;
+                existingProject.CreatedUserName = projectDto.CreatedUserName;
+                existingProject.EditedUserName = projectDto.EditedUserName;
+
+                return await _projectRepository.UpdateProjectAsync(existingProject);
             }
-
-            existingProject.Name = projectDto.Name;
-            existingProject.Description = projectDto.Description;
-            existingProject.CreatedUserId = projectDto.CreatedUserId;
-            existingProject.EditedUserId = projectDto.EditedUserId;
-
-            return await _projectRepository.UpdateProjectAsync(existingProject);
         }
     }
 }

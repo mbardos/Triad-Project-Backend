@@ -1,40 +1,46 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Aggregates;
+using TriadInterviewBackend.DomainLayer.Contracts;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
 
-public class AddUserCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Users
 {
-    public UserDto User {get; set; }
-
-    public AddUserCommand(UserDto user)
+    public class AddUserCommand : IRequest<bool>
     {
-        User = user;
-    }
+        public UserDto User {get; set; }
 
-    public class Handler : IRequestHandler<AddUserCommand, bool>
-    {
-        private readonly IUserRepository _userRepository;
-
-        public Handler(IUserRepository userRepository)
+        public AddUserCommand(UserDto user)
         {
-            _userRepository = userRepository;
+            User = user;
         }
 
-        public async Task<bool> Handle(AddUserCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<AddUserCommand, bool>
         {
-            var userDto = request.User;
-            if (await _userRepository.GetUserByEmailAsync(userDto.Email) != null || await _userRepository.GetUserByNameAsync(userDto.Name) != null)
+            private readonly IUserRepository _userRepository;
+
+            public Handler(IUserRepository userRepository)
             {
-                // User with the same email or name already exists
-                return false;
+                _userRepository = userRepository;
             }
 
-            var user = new User
+            public async Task<bool> Handle(AddUserCommand request, CancellationToken cancellationToken)
             {
-                Name = userDto.Name,
-                Email = userDto.Email,
-                Password = userDto.Password
-            };
+                var userDto = request.User;
+                if (await _userRepository.GetUserByEmailAsync(userDto.Email) != null || await _userRepository.GetUserByNameAsync(userDto.Name) != null)
+                {
+                    // User with the same email or name already exists
+                    return false;
+                }
 
-            return await _userRepository.AddUserAsync(user);
+                var user = new User
+                {
+                    Name = userDto.Name,
+                    Email = userDto.Email,
+                    Password = userDto.Password
+                };
+
+                return await _userRepository.AddUserAsync(user);
+            }
         }
     }
 }

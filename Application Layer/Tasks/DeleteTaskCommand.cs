@@ -1,31 +1,36 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class DeleteTaskCommand: IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Tasks
 {
-    public int Id { get; set; }
-
-    public DeleteTaskCommand(int id)
+    public class DeleteTaskCommand: IRequest<bool>
     {
-        Id = id;
-    }
+        public int Id { get; set; }
 
-    public class Handler : IRequestHandler<DeleteTaskCommand, bool>
-    {
-        private readonly ITaskRepository _taskRepository;
-
-        public Handler(ITaskRepository taskRepository)
+        public DeleteTaskCommand(int id)
         {
-            _taskRepository = taskRepository;
+            Id = id;
         }
 
-        public async Task<bool> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<DeleteTaskCommand, bool>
         {
-            if (await _taskRepository.GetTaskByIdAsync(request.Id) == null)
+            private readonly ITaskRepository _taskRepository;
+
+            public Handler(ITaskRepository taskRepository)
             {
-                return false; // Task not found
+                _taskRepository = taskRepository;
             }
 
-            return await _taskRepository.DeleteTaskAsync(request.Id);
+            public async Task<bool> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
+            {
+                if (await _taskRepository.GetTaskByIdAsync(request.Id) == null)
+                {
+                    return false; // Task not found
+                }
+
+                return await _taskRepository.DeleteTaskAsync(request.Id);
+            }
         }
     }
 }
+

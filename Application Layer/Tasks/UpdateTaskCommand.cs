@@ -1,40 +1,45 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class UpdateTaskCommand: IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Tasks
 {
-    public TaskDto Task { get; set; }
-
-    public UpdateTaskCommand(TaskDto task)
+    public class UpdateTaskCommand: IRequest<bool>
     {
-        Task = task;
-    }
+        public TaskDto Task { get; set; }
 
-    public class Handler : IRequestHandler<UpdateTaskCommand, bool>
-    {
-        private readonly ITaskRepository _taskRepository;
-
-        public Handler(ITaskRepository taskRepository)
+        public UpdateTaskCommand(TaskDto task)
         {
-            _taskRepository = taskRepository;
+            Task = task;
         }
 
-        public async Task<bool> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<UpdateTaskCommand, bool>
         {
-            var existingTask = await _taskRepository.GetTaskByIdAsync(request.Task.Id);
-            
-            if (existingTask == null)
+            private readonly ITaskRepository _taskRepository;
+
+            public Handler(ITaskRepository taskRepository)
             {
-                return false; // Task not found
+                _taskRepository = taskRepository;
             }
 
-            existingTask.Name = request.Task.Name;
-            existingTask.Description = request.Task.Description;
-            existingTask.ProjectId = request.Task.ProjectId;
-            existingTask.State = request.Task.State;
-            existingTask.CreatedUserId = request.Task.CreatedUserId;
-            existingTask.EditedUserId = request.Task.EditedUserId;
+            public async Task<bool> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
+            {
+                var existingTask = await _taskRepository.GetTaskByIdAsync(request.Task.Id);
+                
+                if (existingTask == null)
+                {
+                    return false; // Task not found
+                }
 
-            return await _taskRepository.UpdateTaskAsync(existingTask);
+                existingTask.Name = request.Task.Name;
+                existingTask.Description = request.Task.Description;
+                existingTask.ProjectId = request.Task.ProjectId;
+                existingTask.State = request.Task.State;
+                existingTask.CreatedUserName = request.Task.CreatedUserName;
+                existingTask.EditedUserName = request.Task.EditedUserName;
+
+                return await _taskRepository.UpdateTaskAsync(existingTask);
+            }
         }
     }
 }

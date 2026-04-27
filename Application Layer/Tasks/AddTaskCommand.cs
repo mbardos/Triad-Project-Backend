@@ -1,39 +1,43 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Aggregates;
+using TriadInterviewBackend.DomainLayer.Contracts;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
 
-public class AddTaskCommand : IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Tasks
 {
-    public TaskDto Task { get; set; }
-
-    public AddTaskCommand(TaskDto task)
+    public class AddTaskCommand : IRequest<bool>
     {
-        Task = task;
-    }
+        public TaskDto Task { get; set; }
 
-    public class Handler : IRequestHandler<AddTaskCommand, bool>
-    {
-        private readonly ITaskRepository _taskRepository;
-
-        public Handler(ITaskRepository taskRepository)
+        public AddTaskCommand(TaskDto task)
         {
-            _taskRepository = taskRepository;
+            Task = task;
         }
 
-        public async Task<bool> Handle(AddTaskCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<AddTaskCommand, bool>
         {
-            var projectId = request.Task.ProjectId == 0 ? null : request.Task.ProjectId;
-            var task = new ProjectTask
+            private readonly ITaskRepository _taskRepository;
+
+            public Handler(ITaskRepository taskRepository)
             {
-                Name = request.Task.Name,
-                Description = request.Task.Description,
-                ProjectId = projectId,
-                State = request.Task.State,
-                CreatedUserId = request.Task.CreatedUserId,
-                EditedUserId = request.Task.EditedUserId
-            };
+                _taskRepository = taskRepository;
+            }
 
-            Console.WriteLine($"Adding Task: Name={task.Name}, Description={task.Description}, ProjectId={task.ProjectId}, State={task.State}, CreatedUserId={task.CreatedUserId}, EditedUserId={task.EditedUserId}");
+            public async Task<bool> Handle(AddTaskCommand request, CancellationToken cancellationToken)
+            {
+                var projectId = request.Task.ProjectId == 0 ? null : request.Task.ProjectId;
+                var task = new ProjectTask
+                {
+                    Name = request.Task.Name,
+                    Description = request.Task.Description,
+                    ProjectId = projectId,
+                    State = request.Task.State,
+                    CreatedUserName = request.Task.CreatedUserName,
+                    EditedUserName = request.Task.EditedUserName
+                };
 
-            return await _taskRepository.AddTaskAsync(task);
+                return await _taskRepository.AddTaskAsync(task);
+            }
         }
     }
 }

@@ -1,42 +1,47 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.Users;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
 
-[Route("api/[controller]")]
-[ApiController]
-public class UserController: ControllerBase
+namespace TriadInterviewBackend.API_Layer.Controllers
 {
-    private readonly IMediator _mediator;
-
-    public UserController( IMediator mediator)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController: ControllerBase
     {
-        _mediator = mediator;
-    }
+        private readonly IMediator _mediator;
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser(int id)
-    {
-        var user = await _mediator.Send(new GetUserByIdQuery(id));
-        return user != null ? Ok(user) : NotFound();
-    }
+        public UserController( IMediator mediator)
+        {
+            _mediator = mediator;
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> AddUser([FromBody] UserDto user)
-    {
-        var result = await _mediator.Send(new AddUserCommand(user));
-        return result ? Ok() : BadRequest();
-    }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(int id)
+        {
+            var user = await _mediator.Send(new GetUserByIdQuery(id));
+            return user != null ? Ok(user) : NotFound();
+        }
 
-    [HttpPut]
-    public async Task<IActionResult> UpdateUser([FromBody] UserDto user)
-    {
-        var result = await _mediator.Send(new UpdateUserCommand(user));
-        return result ? Ok() : BadRequest();
-    }
+        [HttpPost]
+        public async Task<IActionResult> AddUser([FromBody] UserDto user)
+        {
+            var result = await _mediator.Send(new AddUserCommand(user));
+            return result ? Ok() : BadRequest();
+        }
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        var result = await _mediator.Send(new DeleteUserCommand(id));
-        return result ? Ok() : NotFound();
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UserDto user)
+        {
+            var result = await _mediator.Send(new UpdateUserCommand(user));
+            return result ? Ok() : BadRequest();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var result = await _mediator.Send(new DeleteUserCommand(id));
+            return result ? Ok() : NotFound();
+        }
     }
 }

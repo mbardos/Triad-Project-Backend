@@ -1,8 +1,12 @@
-public class Project
+namespace TriadInterviewBackend.DomainLayer.Aggregates
 {
-    public int Id { get; set; }
-    public required string Name { get; set; }
-    public required string Description { get; set; }
-    public required int CreatedUserId { get; set; }
-    public int? EditedUserId { get; set; }
+    public class Project
+    {
+        public int Id { get; set; }
+        public required string Name { get; set; }
+        public required string Description { get; set; }
+        public required string CreatedUserName { get; set; }
+        public string? EditedUserName { get; set; }
+    }
 }
+

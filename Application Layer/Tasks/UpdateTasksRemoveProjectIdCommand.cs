@@ -1,28 +1,32 @@
 using MediatR;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class UpdateTaskRemoveProjectIdCommand: IRequest<bool>
+namespace TriadInterviewBackend.ApplicationLayer.Tasks
 {
-    public int ProjectId { get; set; }
-
-    public UpdateTaskRemoveProjectIdCommand(int projectId)
+    public class UpdateTaskRemoveProjectIdCommand: IRequest<bool>
     {
-        ProjectId = projectId;
-    }
+        public int ProjectId { get; set; }
 
-    public class Handler : IRequestHandler<UpdateTaskRemoveProjectIdCommand, bool>
-    {
-        private readonly ITaskRepository _taskRepository;
-
-        public Handler(ITaskRepository taskRepository)
+        public UpdateTaskRemoveProjectIdCommand(int projectId)
         {
-            _taskRepository = taskRepository;
+            ProjectId = projectId;
         }
 
-        public async Task<bool> Handle(UpdateTaskRemoveProjectIdCommand request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<UpdateTaskRemoveProjectIdCommand, bool>
         {
-            var updateTasksResult = await _taskRepository.RemoveDeletedProjectIdAsync(request.ProjectId);
-            
-            return updateTasksResult; // Return the result of updating tasks
+            private readonly ITaskRepository _taskRepository;
+
+            public Handler(ITaskRepository taskRepository)
+            {
+                _taskRepository = taskRepository;
+            }
+
+            public async Task<bool> Handle(UpdateTaskRemoveProjectIdCommand request, CancellationToken cancellationToken)
+            {
+                var updateTasksResult = await _taskRepository.RemoveDeletedProjectIdAsync(request.ProjectId);
+                
+                return updateTasksResult; // Return the result of updating tasks
+            }
         }
     }
 }

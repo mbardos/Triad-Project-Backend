@@ -1,42 +1,47 @@
 using MediatR;
+using TriadInterviewBackend.ApplicationLayer.DTOs;
+using TriadInterviewBackend.DomainLayer.Contracts;
 
-public class GetTaskByIdQuery : IRequest<TaskDto>
+namespace TriadInterviewBackend.ApplicationLayer.Tasks
 {
-    public int Id { get; set; }
-
-    public GetTaskByIdQuery(int id)
+    public class GetTaskByIdQuery : IRequest<TaskDto>
     {
-        Id = id;
-    }
+        public int Id { get; set; }
 
-    public class Handler : IRequestHandler<GetTaskByIdQuery, TaskDto>
-    {
-        private readonly ITaskRepository _taskRepository;
-
-        public Handler(ITaskRepository taskRepository)
+        public GetTaskByIdQuery(int id)
         {
-            _taskRepository = taskRepository;
+            Id = id;
         }
 
-        public async Task<TaskDto> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
+        public class Handler : IRequestHandler<GetTaskByIdQuery, TaskDto>
         {
-            var task = await _taskRepository.GetTaskByIdAsync(request.Id);
-            
-            if (task == null)
+            private readonly ITaskRepository _taskRepository;
+
+            public Handler(ITaskRepository taskRepository)
             {
-                return null; // Task not found
+                _taskRepository = taskRepository;
             }
 
-            return new TaskDto
+            public async Task<TaskDto> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
             {
-                Id = task.Id,
-                Name = task.Name,
-                Description = task.Description,
-                ProjectId = task.ProjectId,
-                State = task.State,
-                CreatedUserId = task.CreatedUserId,
-                EditedUserId = task.EditedUserId
-            };
+                var task = await _taskRepository.GetTaskByIdAsync(request.Id);
+                
+                if (task == null)
+                {
+                    return null; // Task not found
+                }
+
+                return new TaskDto
+                {
+                    Id = task.Id,
+                    Name = task.Name,
+                    Description = task.Description,
+                    ProjectId = task.ProjectId,
+                    State = task.State,
+                    CreatedUserName = task.CreatedUserName,
+                    EditedUserName = task.EditedUserName
+                };
+            }
         }
     }
 }
